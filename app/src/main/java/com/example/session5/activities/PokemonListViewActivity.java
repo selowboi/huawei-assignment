@@ -1,11 +1,10 @@
 package com.example.session5.activities;
 
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
 
-import android.content.Intent;
 import android.os.Bundle;
+import android.widget.ArrayAdapter;
+import android.widget.ListView;
 
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
@@ -14,7 +13,6 @@ import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
 import com.example.session5.R;
-import com.example.session5.adapter.PokemonAdapter;
 import com.example.session5.models.Pokemon;
 
 import org.json.JSONArray;
@@ -23,20 +21,21 @@ import org.json.JSONObject;
 
 import java.util.ArrayList;
 
-public class PokemonRecyclerViewActivity extends AppCompatActivity implements PokemonAdapter.OnItemClickListener{
+public class PokemonListViewActivity extends AppCompatActivity {
 
-    ArrayList<Pokemon> pokemons = new ArrayList<>();
-    RecyclerView rvCity;
+    ListView lvPokemon;
+    ArrayList<String> pokemons = new ArrayList<>();
 
     private static String BASE_URL = "https://pokeapi.co/api/v2/pokemon/";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_pokemon_recycler_view);
-        rvCity = (RecyclerView) findViewById(R.id.rv_pokemon);
+        setContentView(R.layout.pokemon_list_view_content);
+        lvPokemon = (ListView) findViewById(R.id.lv_pokemon);
         getPokemons();
-        initAdapter();
+        ArrayAdapter<String> pokemonArrayAdapter = new ArrayAdapter<>(this, R.layout.activity_pokemon_list_view, R.id.tv_title_list_view, pokemons);
+        lvPokemon.setAdapter(pokemonArrayAdapter);
     }
 
     public void getPokemons() {
@@ -53,7 +52,7 @@ public class PokemonRecyclerViewActivity extends AppCompatActivity implements Po
                                 JSONObject jsonObject = results.getJSONObject(i);
                                 String name = jsonObject.getString("name");
                                 String url = jsonObject.getString("url");
-                                pokemons.add(new Pokemon(name, url));
+                                pokemons.add(name);
                             }
                         } catch (JSONException e) {
                             e.printStackTrace();
@@ -69,21 +68,5 @@ public class PokemonRecyclerViewActivity extends AppCompatActivity implements Po
         );
         RequestQueue requestQueue = Volley.newRequestQueue(this);
         requestQueue.add(jsonObjectRequest);
-    }
-
-
-    private void initAdapter() {
-        PokemonAdapter cityAdapter = new PokemonAdapter(pokemons);
-        rvCity.setAdapter(cityAdapter);
-        rvCity.setLayoutManager(new LinearLayoutManager(getApplicationContext()));
-    }
-
-
-    @Override
-    public void onItemClick(int position) {
-        Intent intent = new Intent(PokemonRecyclerViewActivity.this, PokemonListViewActivity.class);
-        Pokemon pokemon = pokemons.get(position);
-        intent.putExtra("URL", pokemon.getUrl());
-        startActivity(intent);
     }
 }
